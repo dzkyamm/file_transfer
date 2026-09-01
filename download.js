@@ -1,5 +1,5 @@
 // Konfigurasi Supabase
-const SUPABASE_URL = "https://vvwqdbzehzddyarhfntg.supabase.co/rest/v1/";
+const SUPABASE_URL = "https://vvwqdbzehzddyarhfntg.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_5baFfm3y3K85sfLVzAIt2A_dgAQGIAd";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -10,7 +10,7 @@ function formatBytes(bytes, decimals = 1) {
     if (!+bytes) return '0 Bytes';
     const k = 1024, dm = decimals < 0 ? 0 : decimals;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];// Konfigurasi Supabase
-const SUPABASE_URL = "https://vvwqdbzehzddyarhfntg.supabase.co/rest/v1/";
+const SUPABASE_URL = "https://vvwqdbzehzddyarhfntg.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_5baFfm3y3K85sfLVzAIt2A_dgAQGIAd";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
