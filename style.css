@@ -76,6 +76,10 @@ p.subtitle {
   margin-bottom: 30px;
   font-size: 15px;
   max-width: 34ch;
+  text-align: center;
+  /* Tambahkan margin auto kiri-kanan biar blok paragrafnya pas di tengah */
+  margin-left: auto;
+  margin-right: auto;
 }
 
 a { color: inherit; }
@@ -90,6 +94,10 @@ a { color: inherit; }
   width: 100%;
   max-width: 440px;
   text-align: center;
+  /* Tambahkan 2 baris ini biar semua child element kepusat dengan sempurna */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 /* Hero signal graphic on home */
