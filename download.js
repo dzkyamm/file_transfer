@@ -4,17 +4,6 @@ const SUPABASE_ANON_KEY = "sb_publishable_5baFfm3y3K85sfLVzAIt2A_dgAQGIAd";
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const fileContainer = document.getElementById('fileContainer');
-
-// Konversi ukuran byte ke KB/MB
-function formatBytes(bytes, decimals = 1) {
-    if (!+bytes) return '0 Bytes';
-    const k = 1024, dm = decimals < 0 ? 0 : decimals;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];// Konfigurasi Supabase
-const SUPABASE_URL = "https://vvwqdbzehzddyarhfntg.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_5baFfm3y3K85sfLVzAIt2A_dgAQGIAd";
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-const fileContainer = document.getElementById('fileContainer');
 const fileCount = document.getElementById('fileCount');
 
 function formatBytes(bytes, decimals = 1) {
@@ -113,11 +102,19 @@ async function loadFiles() {
     fileContainer.innerHTML = '';
 
     files.forEach((item, idx) => {
-      const { data: urlData } = supabaseClient.storage.from('files').getPublicUrl(item.name);
       const isTemp = item.name.startsWith('temp_30d_');
       const cleanName = item.name.replace(/^(temp_30d_|perm_)\d+_/, '');
       const fileSize = item.metadata ? formatBytes(item.metadata.size) : 'Ukuran tidak diketahui';
       const uploadDate = new Date(item.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+
+      // Penting: minta URL versi "download" ke Supabase (bukan public URL biasa).
+      // Ini membuat server mengirim header Content-Disposition: attachment,
+      // sehingga file benar-benar terunduh, bukan cuma dibuka di tab baru
+      // (atribut `download` di tag <a> diabaikan browser untuk link cross-origin).
+      const { data: urlData } = supabaseClient
+        .storage
+        .from('files')
+        .getPublicUrl(item.name, { download: cleanName });
 
       const card = document.createElement('div');
       card.className = 'file-card';
@@ -136,14 +133,16 @@ async function loadFiles() {
           <button type="button" class="btn-icon copy-link" aria-label="Salin tautan" title="Salin tautan">
             <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 13a5 5 0 007.07 0l2.83-2.83a5 5 0 10-7.07-7.07L11.5 4.5M14 11a5 5 0 00-7.07 0l-2.83 2.83a5 5 0 107.07 7.07L12.5 19.5"/></svg>
           </button>
-          <a href="${urlData.publicUrl}" class="btn-icon" download target="_blank" aria-label="Unduh ${cleanName}" title="Unduh">
+          <a href="${urlData.publicUrl}" class="btn-icon" download="${cleanName}" aria-label="Unduh ${cleanName}" title="Unduh">
             <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
           </a>
         </div>
       `;
       card.querySelector('.copy-link').addEventListener('click', async () => {
         try {
-          await navigator.clipboard.writeText(urlData.publicUrl);
+          // Untuk share link, pakai public URL biasa (tanpa forced download)
+          const { data: shareUrl } = supabaseClient.storage.from('files').getPublicUrl(item.name);
+          await navigator.clipboard.writeText(shareUrl.publicUrl);
           showToast('Tautan disalin');
         } catch {
           showToast('Gagal menyalin tautan');
@@ -157,63 +156,4 @@ async function loadFiles() {
   }
 }
 
-loadFiles();
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
-}
-
-async function loadFiles() {
-  try {
-    const { data, error } = await supabaseClient
-      .storage
-      .from('files')
-      .list('', { limit: 100, sortBy: { column: 'created_at', order: 'desc' } });
-
-    if (error) throw error;
-
-    if (!data || data.length === 0 || (data.length === 1 && data[0].name === '.emptyFolderPlaceholder')) {
-      fileContainer.innerHTML = `<div style="text-align: center; padding: 40px 0; color: var(--text-muted);">Tidak ada file yang tersedia.</div>`;
-      return;
-    }
-
-    fileContainer.innerHTML = ''; // Bersihkan container
-
-    data.forEach(item => {
-      if (item.name === '.emptyFolderPlaceholder') return;
-
-      // Ambil URL Publik
-      const { data: urlData } = supabaseClient.storage.from('files').getPublicUrl(item.name);
-
-      const isTemp = item.name.startsWith('temp_30d_');
-      // Ekstrak nama asli dengan membuang prefix (perm/temp + timestamp)
-      const cleanName = item.name.replace(/^(temp_30d_|perm_)\d+_/, '');
-      const fileSize = item.metadata ? formatBytes(item.metadata.size) : 'Unknown size';
-      
-      // Ambil tanggal upload
-      const uploadDate = new Date(item.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
-
-      const card = document.createElement('div');
-      card.className = 'file-card';
-      card.innerHTML = `
-        <div class="file-info">
-          <div class="file-name" title="${cleanName}">${cleanName}</div>
-          <div class="file-meta">
-            <span class="badge ${isTemp ? 'badge-temp' : 'badge-perm'}">${isTemp ? 'Hapus 30 Hari' : 'Permanen'}</span>
-            <span>• ${fileSize}</span>
-            <span>• ${uploadDate}</span>
-          </div>
-        </div>
-        <a href="${urlData.publicUrl}" class="btn-dl" download target="_blank">
-          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-        </a>
-      `;
-      fileContainer.appendChild(card);
-    });
-
-  } catch (error) {
-    fileContainer.innerHTML = `<div style="text-align: center; padding: 40px 0; color: #dc2626;">Gagal memuat file: ${error.message}</div>`;
-  }
-}
-
-// Panggil fungsi saat halaman diload
 loadFiles();
