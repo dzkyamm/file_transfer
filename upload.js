@@ -136,7 +136,7 @@ uploadBtn.addEventListener('click', async () => {
   // Semua file mengikuti kebijakan penyimpanan 30 hari.
   // Tidak ada pilihan permanen di sisi client. Cleanup dilakukan oleh backend/cron.
   const safeName = selectedFile.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-  const filePath = `file_${Date.now()}_${safeName}`;
+  const filePath = safeName;
 
   try {
     const { error } = await supabaseClient.storage.from('files').upload(filePath, selectedFile);
