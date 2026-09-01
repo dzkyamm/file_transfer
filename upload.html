@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload - Local Drop</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <div class="card" style="text-align: left;">
+    <a href="index.html" class="nav-back">← Kembali</a>
+
+    <h2 style="margin-bottom: 20px;">Upload File</h2>
+
+    <div class="drop-zone" id="dropZone" role="button" tabindex="0" aria-label="Klik atau tarik file ke sini untuk memilih">
+      <div class="drop-zone-icon" id="dropZoneIcon">
+        <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+      </div>
+      <div class="drop-zone-text" id="fileNameDisplay">Tarik file ke sini</div>
+      <div class="drop-zone-subtext">atau klik untuk memilih dari perangkat</div>
+      <input type="file" id="fileInput" style="display: none;">
+    </div>
+
+    <div class="selected-file" id="selectedFileRow" style="display:none;">
+      <div class="f-icon" id="fIcon"></div>
+      <div class="f-info">
+        <div class="f-name" id="fName"></div>
+        <div class="f-size" id="fSize"></div>
+      </div>
+      <button type="button" class="f-remove" id="fRemove" aria-label="Batalkan pilihan file">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+    </div>
+
+    <div class="progress-track" id="progressTrack">
+      <div class="progress-fill"></div>
+    </div>
+
+    <div class="option-box">
+      <div>
+        <div class="option-title">Hapus Otomatis</div>
+        <div class="option-desc">File dihapus setelah 30 hari</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="autoDelete" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <button class="btn btn-dark" id="uploadBtn" disabled>Mulai Upload</button>
+  </div>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <script src="upload.js"></script>
+</body>
+</html>
