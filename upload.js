@@ -8,7 +8,6 @@ const dropZone = document.getElementById('dropZone');
 const fileInput = document.getElementById('fileInput');
 const fileNameDisplay = document.getElementById('fileNameDisplay');
 const uploadBtn = document.getElementById('uploadBtn');
-const autoDelete = document.getElementById('autoDelete');
 const selectedFileRow = document.getElementById('selectedFileRow');
 const fName = document.getElementById('fName');
 const fSize = document.getElementById('fSize');
@@ -134,8 +133,10 @@ uploadBtn.addEventListener('click', async () => {
   fRemove.disabled = true;
   progressTrack.classList.add('active');
 
-  const prefix = autoDelete.checked ? 'temp_30d_' : 'perm_';
-  const filePath = `${prefix}${Date.now()}_${selectedFile.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
+  // Semua file mengikuti kebijakan penyimpanan 30 hari.
+  // Tidak ada pilihan permanen di sisi client. Cleanup dilakukan oleh backend/cron.
+  const safeName = selectedFile.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+  const filePath = `file_${Date.now()}_${safeName}`;
 
   try {
     const { error } = await supabaseClient.storage.from('files').upload(filePath, selectedFile);

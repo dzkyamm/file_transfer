@@ -3,33 +3,80 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Local Drop</title>
+  <meta name="theme-color" content="#07110f">
+  <title>Local Drop — Transfer File Cepat</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="card">
-    <div class="signal" aria-hidden="true">
-      <svg width="80" height="40" viewBox="0 0 80 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="1" y="9" width="14" height="22" rx="4" stroke="var(--ink-faint)" stroke-width="1.6"/>
-        <rect x="65" y="4" width="14" height="32" rx="4" stroke="var(--ink-faint)" stroke-width="1.6"/>
-        <path class="signal-line" d="M17 20 H63" stroke="var(--line)" stroke-width="1.6"/>
-        <circle class="signal-dot" r="3.5" fill="var(--pulse)"/>
-      </svg>
-    </div>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
 
-    <h1>Local Drop</h1>
-    <p class="subtitle">Kirim file antar HP dan laptop dalam satu jaringan, tanpa kabel dan tanpa ribet.</p>
+  <main class="app-shell home-shell">
+    <nav class="topbar" aria-label="Navigasi utama">
+      <a class="brand" href="index.html" aria-label="Local Drop beranda">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M7 8.5A5 5 0 0 1 17 8.5M4 5.5a9 9 0 0 1 16 0M9.5 12a2.5 2.5 0 0 1 5 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="16.8" r="1.4" fill="currentColor"/></svg>
+        </span>
+        <span>Local Drop</span>
+      </a>
+      <div class="status-pill"><span class="status-dot"></span> Siap digunakan</div>
+    </nav>
 
-    <div class="btn-row">
-      <a href="upload.html" class="btn btn-dark">
-        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-        Upload File Baru
-      </a>
-      <a href="download.html" class="btn btn-outline">
-        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-        Lihat File Tersedia
-      </a>
-    </div>
-  </div>
+    <section class="hero-panel">
+      <div class="hero-copy">
+        <div class="eyebrow"><span>TRANSFER SPACE</span><span class="eyebrow-line"></span></div>
+        <h1>Kirim file dengan cara yang <span>lebih simpel.</span></h1>
+        <p class="hero-description">Upload dari satu perangkat, lalu ambil dari perangkat lain. Antarmuka ringan, cepat, dan dibuat untuk alur transfer tanpa gangguan.</p>
+
+        <div class="hero-actions">
+          <a href="upload.html" class="btn btn-primary">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14.5v3A2.5 2.5 0 0 0 7.5 20h9a2.5 2.5 0 0 0 2.5-2.5v-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Upload file
+            <span class="btn-arrow">→</span>
+          </a>
+          <a href="download.html" class="btn btn-secondary">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 4v12m0 0 4.5-4.5M12 16l-4.5-4.5M5 18.5V20h14v-1.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Lihat file
+          </a>
+        </div>
+
+        <div class="trust-row" aria-label="Keunggulan">
+          <span><svg viewBox="0 0 24 24"><path d="m7 12 3 3 7-7"/></svg> Drag & drop</span>
+          <span><svg viewBox="0 0 24 24"><path d="m7 12 3 3 7-7"/></svg> Link siap dibagikan</span>
+          <span><svg viewBox="0 0 24 24"><path d="m7 12 3 3 7-7"/></svg> Mobile friendly</span>
+        </div>
+      </div>
+
+      <div class="transfer-visual" aria-hidden="true">
+        <div class="visual-grid"></div>
+        <div class="device-card device-phone">
+          <div class="device-top"><span></span></div>
+          <div class="device-content">
+            <span class="mini-label">PHONE</span>
+            <div class="mini-file"><span class="mini-icon"></span><span><b>project.zip</b><small>24.8 MB</small></span></div>
+          </div>
+        </div>
+        <div class="transfer-path"><span class="packet packet-1"></span><span class="packet packet-2"></span><span class="packet packet-3"></span></div>
+        <div class="device-card device-laptop">
+          <div class="laptop-screen">
+            <span class="mini-label">LAPTOP</span>
+            <div class="receive-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v10m0 0 4-4m-4 4-4-4M6 19h12" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <small>Ready to receive</small>
+          </div>
+          <div class="laptop-base"></div>
+        </div>
+        <div class="floating-chip chip-one">Encrypted link</div>
+        <div class="floating-chip chip-two"><span class="status-dot"></span> Connected</div>
+      </div>
+    </section>
+
+    <section class="feature-strip">
+      <article><span class="feature-num">01</span><div><h3>Pilih file</h3><p>Tarik file atau pilih langsung dari perangkat.</p></div></article>
+      <article><span class="feature-num">02</span><div><h3>Upload sekali</h3><p>File langsung tersimpan dan siap dibagikan.</p></div></article>
+      <article><span class="feature-num">03</span><div><h3>Akses selama 30 hari</h3><p>Salin tautan atau unduh kapan saja sebelum masa simpan berakhir.</p></div></article>
+    </section>
+  </main>
+
+  <footer class="site-footer">Local Drop <span>•</span> fast file transfer interface</footer>
 </body>
 </html>

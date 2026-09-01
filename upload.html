@@ -3,56 +3,83 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Upload - Local Drop</title>
+  <meta name="theme-color" content="#07110f">
+  <title>Upload — Local Drop</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-  <div class="card" style="text-align: left;">
-    <a href="index.html" class="nav-back">← Kembali</a>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
 
-    <h2 style="margin-bottom: 20px;">Upload File</h2>
+  <main class="app-shell page-shell">
+    <nav class="topbar">
+      <a class="brand" href="index.html">
+        <span class="brand-mark"><svg viewBox="0 0 24 24" fill="none"><path d="M7 8.5A5 5 0 0 1 17 8.5M4 5.5a9 9 0 0 1 16 0M9.5 12a2.5 2.5 0 0 1 5 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="16.8" r="1.4" fill="currentColor"/></svg></span>
+        <span>Local Drop</span>
+      </a>
+      <a href="download.html" class="nav-link">File tersedia <span>→</span></a>
+    </nav>
 
-    <div class="drop-zone" id="dropZone" role="button" tabindex="0" aria-label="Klik atau tarik file ke sini untuk memilih">
-      <div class="drop-zone-icon" id="dropZoneIcon">
-        <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-      </div>
-      <div class="drop-zone-text" id="fileNameDisplay">Tarik file ke sini</div>
-      <div class="drop-zone-subtext">atau klik untuk memilih dari perangkat</div>
-      <input type="file" id="fileInput" style="display: none;">
-    </div>
+    <section class="workspace upload-workspace">
+      <aside class="workspace-intro">
+        <a href="index.html" class="nav-back">← Beranda</a>
+        <div class="eyebrow"><span>UPLOAD</span><span class="eyebrow-line"></span></div>
+        <h1>Bagikan file dalam beberapa detik.</h1>
+        <p>Pilih satu file dari perangkat. Setelah upload selesai, file akan tampil di halaman daftar dan bisa diunduh atau dibagikan.</p>
+        <div class="info-stack">
+          <div><span class="info-icon">01</span><span><b>Drag & drop</b><small>Atau klik area upload untuk memilih file.</small></span></div>
+          <div><span class="info-icon">02</span><span><b>Status jelas</b><small>Nama dan ukuran file tampil sebelum dikirim.</small></span></div>
+          <div><span class="info-icon">03</span><span><b>Otomatis dibersihkan</b><small>Setiap file tersedia selama 30 hari, lalu dihapus otomatis.</small></span></div>
+        </div>
+      </aside>
 
-    <div class="selected-file" id="selectedFileRow" style="display:none;">
-      <div class="f-icon" id="fIcon"></div>
-      <div class="f-info">
-        <div class="f-name" id="fName"></div>
-        <div class="f-size" id="fSize"></div>
-      </div>
-      <button type="button" class="f-remove" id="fRemove" aria-label="Batalkan pilihan file">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
-      </button>
-    </div>
+      <section class="panel upload-panel">
+        <div class="panel-head">
+          <div><span class="panel-kicker">NEW TRANSFER</span><h2>Upload file</h2></div>
+          <div class="secure-badge"><span></span> Storage ready</div>
+        </div>
 
-    <div class="progress-track" id="progressTrack">
-      <div class="progress-fill"></div>
-    </div>
+        <div class="drop-zone" id="dropZone" role="button" tabindex="0" aria-label="Klik atau tarik file ke sini untuk memilih">
+          <input type="file" id="fileInput" class="sr-only">
+          <div class="drop-illustration" id="dropZoneIcon">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 15V4m0 0L8 8m4-4 4 4M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="drop-zone-text" id="fileNameDisplay">Tarik file ke sini</div>
+          <div class="drop-zone-subtext">atau <strong>pilih dari perangkat</strong></div>
+          <div class="drop-hint">1 file per upload</div>
+        </div>
 
-    <div class="option-box">
-      <div>
-        <div class="option-title">Hapus Otomatis</div>
-        <div class="option-desc">File dihapus setelah 30 hari</div>
-      </div>
-      <label class="switch">
-        <input type="checkbox" id="autoDelete" checked>
-        <span class="slider"></span>
-      </label>
-    </div>
+        <div class="selected-file" id="selectedFileRow" hidden>
+          <div class="f-icon" id="fIcon"></div>
+          <div class="f-info"><div class="f-name" id="fName"></div><div class="f-size" id="fSize"></div></div>
+          <div class="file-ready">READY</div>
+          <button type="button" class="f-remove" id="fRemove" aria-label="Batalkan pilihan file"><svg viewBox="0 0 24 24" fill="none"><path d="M7 7l10 10M17 7 7 17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+        </div>
 
-    <button class="btn btn-dark" id="uploadBtn" disabled>Mulai Upload</button>
-  </div>
+        <div class="progress-wrap" id="progressTrack" aria-live="polite">
+          <div class="progress-copy"><span>Mengunggah file...</span><span>Mohon tetap di halaman ini</span></div>
+          <div class="progress-track"><div class="progress-fill"></div></div>
+        </div>
+
+        <div class="retention-notice" role="note" aria-label="Kebijakan penyimpanan file">
+          <div class="retention-icon">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 8v4l2.5 2.5M20 12a8 8 0 1 1-2.34-5.66" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 4v4h-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="option-copy"><div class="option-title">Penyimpanan otomatis 30 hari</div><div class="option-desc">Tidak perlu memilih apa pun. Setiap file akan tersedia selama 30 hari dan dibersihkan otomatis setelah masa simpan berakhir.</div></div>
+          <span class="retention-badge">AUTO</span>
+        </div>
+
+        <button class="btn btn-primary upload-action" id="uploadBtn" disabled>
+          <span id="uploadBtnLabel">Mulai upload</span>
+          <svg viewBox="0 0 24 24" fill="none"><path d="M8 12h8m0 0-3-3m3 3-3 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <p class="panel-note">Dengan mengunggah, kamu menyetujui bahwa file akan tersedia selama 30 hari dan kemudian dihapus otomatis.</p>
+      </section>
+    </section>
+  </main>
 
   <div id="toast" role="status" aria-live="polite"></div>
-
   <script src="upload.js"></script>
 </body>
 </html>

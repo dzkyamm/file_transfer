@@ -1,0 +1,2 @@
+[functions.delete-expired-files]
+verify_jwt = false

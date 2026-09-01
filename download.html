@@ -3,32 +3,45 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Download - Local Drop</title>
+  <meta name="theme-color" content="#07110f">
+  <title>Files — Local Drop</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-  <div class="card" style="max-width: 600px; text-align: left;">
-    <div class="page-head">
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+  <main class="app-shell page-shell">
+    <nav class="topbar">
+      <a class="brand" href="index.html"><span class="brand-mark"><svg viewBox="0 0 24 24" fill="none"><path d="M7 8.5A5 5 0 0 1 17 8.5M4 5.5a9 9 0 0 1 16 0M9.5 12a2.5 2.5 0 0 1 5 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="16.8" r="1.4" fill="currentColor"/></svg></span><span>Local Drop</span></a>
+      <a href="upload.html" class="btn btn-primary btn-compact"><span>+</span> Upload file</a>
+    </nav>
+    <section class="files-header">
       <div>
-        <h2 style="margin-bottom: 4px;">File Tersedia</h2>
-        <div class="file-count" id="fileCount"></div>
+        <a href="index.html" class="nav-back">← Beranda</a>
+        <div class="eyebrow"><span>SHARED FILES</span><span class="eyebrow-line"></span></div>
+        <h1>File tersedia</h1>
+        <p>Temukan, salin tautan, atau unduh file yang masih dalam masa simpan.</p>
       </div>
-      <a href="index.html" class="nav-back">Beranda</a>
-    </div>
-
-    <div class="file-list" id="fileContainer">
-      <div class="state-block">
-        <svg class="state-icon spin" width="24" height="24" stroke="currentColor" viewBox="0 0 24 24" fill="none">
-          <path stroke-linecap="round" stroke-width="2" d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"></path>
-        </svg>
-        <p>Mencari file...</p>
+      <div class="storage-stat"><span class="stat-label">RETENTION</span><strong><span class="status-dot"></span> 30 hari</strong><small id="fileCount">Memuat file...</small></div>
+    </section>
+    <section class="panel files-panel">
+      <div class="file-toolbar">
+        <label class="search-box" for="searchInput">
+          <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="1.7"/><path d="m16 16 4 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <input id="searchInput" type="search" placeholder="Cari nama file..." autocomplete="off">
+          <kbd>⌘ K</kbd>
+        </label>
+        <div class="toolbar-actions">
+          <select id="sortSelect" class="select-control" aria-label="Urutkan file"><option value="newest">Terbaru</option><option value="oldest">Terlama</option></select>
+          <button class="icon-button" id="refreshBtn" type="button" aria-label="Muat ulang file" title="Muat ulang"><svg viewBox="0 0 24 24" fill="none"><path d="M19 8a7 7 0 1 0 .5 7M19 8V4m0 4h-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        </div>
       </div>
-    </div>
-  </div>
-
+      <div class="list-heading"><span>FILE</span><span>AKSI</span></div>
+      <div class="file-list" id="fileContainer"><div class="state-block"><div class="loader"></div><p>Mencari file...</p></div></div>
+    </section>
+  </main>
   <div id="toast" role="status" aria-live="polite"></div>
-
   <script src="download.js"></script>
 </body>
 </html>
