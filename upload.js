@@ -14,8 +14,22 @@ const fSize = document.getElementById('fSize');
 const fIcon = document.getElementById('fIcon');
 const fRemove = document.getElementById('fRemove');
 const progressTrack = document.getElementById('progressTrack');
+const uploadControls = document.getElementById('uploadControls');
+const successState = document.getElementById('successState');
+const panelHeadDefault = document.getElementById('panelHeadDefault');
+const copyIpBtn = document.getElementById('copyIpBtn');
+
 let selectedFile = null;
 let dragCounter = 0;
+
+// Generate IP numerik acak dengan format IPv4 asli (contoh: 192.168.x.x atau acak penuh)
+function generateIPv4() {
+  const octet1 = Math.floor(Math.random() * 254) + 1; // 1-254
+  const octet2 = Math.floor(Math.random() * 256);     // 0-255
+  const octet3 = Math.floor(Math.random() * 256);     // 0-255
+  const octet4 = Math.floor(Math.random() * 254) + 1; // 1-254
+  return `${octet1}.${octet2}.${octet3}.${octet4}`;
+}
 
 // Ikon berdasarkan tipe file
 function iconForFile(name) {
@@ -61,7 +75,7 @@ function showToast(message, kind = 'info') {
   toast.innerHTML = `${icons[kind] || ''}<span>${message}</span>`;
   toast.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toast.classList.remove('show'), 3200);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 3500);
 }
 
 // Klik & keyboard untuk memilih file
@@ -75,7 +89,6 @@ dropZone.addEventListener('keydown', (e) => {
 
 fileInput.addEventListener('change', (e) => handleFileSelect(e.target.files[0]));
 
-// Drag & drop (pakai counter agar tidak flicker saat melewati elemen anak)
 dropZone.addEventListener('dragenter', (e) => {
   e.preventDefault();
   dragCounter++;
@@ -133,23 +146,41 @@ uploadBtn.addEventListener('click', async () => {
   fRemove.disabled = true;
   progressTrack.classList.add('active');
 
-  // Semua file mengikuti kebijakan penyimpanan 30 hari.
-  // Tidak ada pilihan permanen di sisi client. Cleanup dilakukan oleh backend/cron.
+  const ipCode = generateIPv4();
   const safeName = selectedFile.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-  const filePath = safeName;
+  // Simpan dalam folder path khusus berdasarkan IP
+  const filePath = `${ipCode}/${safeName}`;
 
   try {
     const { error } = await supabaseClient.storage.from('files').upload(filePath, selectedFile);
     if (error) throw error;
 
     progressTrack.classList.remove('active');
-    showToast('File berhasil diunggah', 'success');
-    setTimeout(() => { window.location.href = 'download.html'; }, 1200);
+    showToast(`Upload berhasil!`, 'success');
+    
+    // Tampilkan UI Sukses
+    uploadControls.style.display = 'none';
+    panelHeadDefault.style.display = 'none';
+    successState.style.display = 'block';
+    
+    document.getElementById('generatedIpDisplay').textContent = ipCode;
+    document.getElementById('goToDownloadBtn').href = `download.html?ip=${ipCode}`;
+    
+    // Fungsional Salin IP
+    copyIpBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(ipCode);
+        showToast('IP berhasil disalin', 'success');
+      } catch (err) {
+        showToast('Gagal menyalin tautan', 'error');
+      }
+    });
+
   } catch (error) {
     progressTrack.classList.remove('active');
     showToast('Upload gagal: ' + error.message, 'error');
     uploadBtn.disabled = false;
-    uploadBtn.textContent = 'Mulai Upload';
+    uploadBtn.textContent = 'Mulai upload';
     dropZone.style.pointerEvents = 'auto';
     fRemove.disabled = false;
   }

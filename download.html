@@ -21,12 +21,34 @@
         <a href="index.html" class="nav-back">← Beranda</a>
         <div class="eyebrow"><span>SHARED FILES</span><span class="eyebrow-line"></span></div>
         <h1>File tersedia</h1>
-        <p>Temukan, salin tautan, atau unduh file yang masih dalam masa simpan.</p>
+        <p>Masukkan alamat IP storage untuk mengakses dan mengunduh file.</p>
       </div>
-      <div class="storage-stat"><span class="stat-label">RETENTION</span><strong><span class="status-dot"></span> 30 hari</strong><small id="fileCount">Memuat file...</small></div>
+      <div class="storage-stat"><span class="stat-label">RETENTION</span><strong><span class="status-dot"></span> 24 jam</strong><small id="fileCount">Masukkan IP...</small></div>
     </section>
-    <section class="panel files-panel">
+
+    <!-- Gerbang Input IP -->
+    <section class="panel ip-gate-panel" id="ipGateSection">
+      <div class="panel-head">
+        <div><span class="panel-kicker">STORAGE ACCESS</span><h2>Masukkan Alamat IP</h2></div>
+        <div class="secure-badge"><span></span> Secure IP</div>
+      </div>
+      <form id="ipForm" class="ip-form">
+        <div class="ip-input-wrap">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z" stroke="currentColor" stroke-width="1.7"/><path d="M12 6v6l4 2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <!-- Pattern diperbarui agar bisa menerima tanda titik (.) -->
+          <input type="text" id="ipInput" placeholder="Contoh: 192.168.12.80" pattern="[0-9.]+" title="Masukkan alamat IP (kombinasi angka dan titik)" autocomplete="off" required>
+        </div>
+        <button type="submit" class="btn btn-primary" id="ipSubmitBtn">
+          <span>Akses Storage IP</span>
+          <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14m0 0-4-4m4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </form>
+    </section>
+
+    <!-- Workspace File (Muncul setelah IP dimasukkan) -->
+    <section class="panel files-panel" id="fileWorkspaceSection" style="display: none;">
       <div class="file-toolbar">
+        <div class="active-ip-badge" id="activeIpDisplay">IP: <span id="currentIpText"></span> <button type="button" id="changeIpBtn" class="btn-link">Ganti IP</button></div>
         <label class="search-box" for="searchInput">
           <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="1.7"/><path d="m16 16 4 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
           <input id="searchInput" type="search" placeholder="Cari nama file..." autocomplete="off">

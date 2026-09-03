@@ -167,3 +167,83 @@ h1 span { color: var(--accent); }
   .retention-notice { align-items: flex-start; }
   .retention-badge { display: none; }
 }
+
+/* IP Gate Styles */
+.ip-gate-panel {
+  max-width: 600px;
+  margin: 40px auto 0;
+  padding: 32px;
+}
+.ip-form {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.ip-input-wrap {
+  height: 52px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.018);
+  border-radius: 13px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  color: var(--text-faint);
+  transition: .2s ease;
+}
+.ip-input-wrap:focus-within {
+  border-color: rgba(103,242,189,.4);
+  box-shadow: 0 0 0 3px rgba(103,242,189,.06);
+}
+.ip-input-wrap svg {
+  width: 20px;
+  flex: none;
+  color: var(--accent);
+}
+.ip-input-wrap input {
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--text);
+  width: 100%;
+  font-size: 15px;
+  font-family: var(--display);
+  font-weight: 600;
+  letter-spacing: .05em;
+}
+.ip-input-wrap input::placeholder {
+  color: var(--text-faint);
+  font-weight: 400;
+  letter-spacing: normal;
+}
+.active-ip-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-soft);
+  background: rgba(103,242,189,.05);
+  border: 1px solid rgba(103,242,189,.15);
+  padding: 6px 12px;
+  border-radius: 9px;
+  flex: none;
+}
+.active-ip-badge span {
+  color: var(--accent);
+  font-family: var(--display);
+  letter-spacing: .05em;
+}
+.btn-link {
+  background: transparent;
+  border: 0;
+  color: var(--danger);
+  font-size: 11px;
+  cursor: pointer;
+  margin-left: 6px;
+  text-decoration: underline;
+}
+.btn-link:hover {
+  opacity: .8;
+}
