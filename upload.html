@@ -26,11 +26,11 @@
         <a href="index.html" class="nav-back">← Beranda</a>
         <div class="eyebrow"><span>UPLOAD</span><span class="eyebrow-line"></span></div>
         <h1>Bagikan file dengan jalur IP terisolasi.</h1>
-        <p>Pilih satu file dari perangkat. Setelah upload selesai, sistem otomatis membuat jalur storage unik berformat IP Address untuk diakses saat download.</p>
+        <p>Pilih satu atau beberapa file dari perangkat. Setelah upload selesai, sistem otomatis membuat jalur storage unik berformat IP Address untuk diakses saat download.</p>
         <div class="info-stack">
           <div><span class="info-icon">01</span><span><b>Auto IP Storage</b><small>Mendapatkan alamat IP acak secara otomatis.</small></span></div>
-          <div><span class="info-icon">02</span><span><b>Terisolasi</b><small>Setiap upload memiliki penyimpanan terpisah.</small></span></div>
-          <div><span class="info-icon">03</span><span><b>Otomatis dibersihkan</b><small>File tersedia selama 24 jam, lalu dihapus otomatis.</small></span></div>
+          <div><span class="info-icon">02</span><span><b>Multi-File Support</b><small>Unggah banyak file sekaligus dengan indikator kecepatan.</small></span></div>
+          <div><span class="info-icon">03</span><span><b>Hapus Otomatis</b><small>File otomatis terhapus saat penerima menekan Done.</small></span></div>
         </div>
       </aside>
 
@@ -47,7 +47,7 @@
               <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
             </div>
             <h3 style="font-size: 22px; margin-bottom: 8px;">Upload Berhasil!</h3>
-            <p style="color: var(--text-soft); font-size: 14px; margin-bottom: 24px;">Salin IP Address di bawah ini untuk mengakses atau membagikan file kamu.</p>
+            <p id="successSummary" style="color: var(--text-soft); font-size: 14px; margin-bottom: 24px;">Salin IP Address di bawah ini untuk mengakses atau membagikan file kamu.</p>
 
             <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,.02); border: 1px solid var(--line); border-radius: 12px; padding: 12px 18px; margin-bottom: 24px;">
               <span style="color: var(--text-faint); font-size: 10px; font-weight: 700; letter-spacing: 1px;">IP STORAGE</span>
@@ -58,6 +58,8 @@
                 </button>
               </div>
             </div>
+
+            <div id="uploadedFilesPreview" style="margin-bottom: 24px; text-align: left; max-height: 140px; overflow-y: auto; background: rgba(0,0,0,0.15); border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; font-size: 12px; color: var(--text-soft);"></div>
 
             <a id="goToDownloadBtn" href="#" class="btn btn-primary" style="width: 100%;">
               <span>Buka Storage IP</span>
@@ -71,32 +73,42 @@
         <!-- UI Upload (Default) -->
         <div id="uploadControls">
           <div class="drop-zone" id="dropZone" role="button" tabindex="0" aria-label="Klik atau tarik file ke sini untuk memilih">
-            <input type="file" id="fileInput" class="sr-only">
+            <input type="file" id="fileInput" class="sr-only" multiple>
             <div class="drop-illustration" id="dropZoneIcon">
               <svg viewBox="0 0 24 24" fill="none"><path d="M12 15V4m0 0L8 8m4-4 4 4M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </div>
             <div class="drop-zone-text" id="fileNameDisplay">Tarik file ke sini</div>
             <div class="drop-zone-subtext">atau <strong>pilih dari perangkat</strong></div>
-            <div class="drop-hint">1 file per upload</div>
+            <div class="drop-hint">Bisa pilih lebih dari 1 file</div>
           </div>
 
-          <div class="selected-file" id="selectedFileRow" hidden>
-            <div class="f-icon" id="fIcon"></div>
-            <div class="f-info"><div class="f-name" id="fName"></div><div class="f-size" id="fSize"></div></div>
-            <div class="file-ready">READY</div>
-            <button type="button" class="f-remove" id="fRemove" aria-label="Batalkan pilihan file"><svg viewBox="0 0 24 24" fill="none"><path d="M7 7l10 10M17 7 7 17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+          <!-- Multi-file selected list container -->
+          <div class="selected-files-container" id="selectedFilesContainer" style="display: none;">
+            <div class="selected-files-header">
+              <span class="selected-files-count" id="selectedFilesCount">0 file dipilih (0 Bytes)</span>
+              <button type="button" class="btn-link" id="clearAllBtn" style="margin: 0; font-size: 11px;">Hapus Semua</button>
+            </div>
+            <div class="selected-files-list" id="selectedFilesList"></div>
           </div>
 
+          <!-- Progress bar with Upload Speed -->
           <div class="progress-wrap" id="progressTrack" aria-live="polite">
-            <div class="progress-copy"><span>Mengunggah file...</span><span>Mohon tetap di halaman ini</span></div>
-            <div class="progress-track"><div class="progress-fill"></div></div>
+            <div class="progress-header">
+              <span class="progress-status" id="progressStatus">Mengunggah file...</span>
+              <span class="progress-speed" id="progressSpeed">⚡ 0 KB/s</span>
+            </div>
+            <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+            <div class="progress-footer">
+              <span id="progressStatsText">0% (0 / 0 Bytes)</span>
+              <span id="progressEtaText">Menghitung...</span>
+            </div>
           </div>
 
           <div class="retention-notice" id="retentionNotice" role="note" aria-label="Kebijakan penyimpanan file">
             <div class="retention-icon">
               <svg viewBox="0 0 24 24" fill="none"><path d="M12 8v4l2.5 2.5M20 12a8 8 0 1 1-2.34-5.66" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 4v4h-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </div>
-            <div class="option-copy"><div class="option-title">Penyimpanan otomatis 24 jam</div><div class="option-desc">Setiap file tersimpan dalam jalur IP khusus dan dibersihkan otomatis setelah 24 jam.</div></div>
+            <div class="option-copy"><div class="option-title">Penyimpanan otomatis 24 jam</div><div class="option-desc">Setiap file tersimpan dalam jalur IP khusus dan langsung terhapus saat penerima menekan tombol Done.</div></div>
             <span class="retention-badge">24H</span>
           </div>
 
@@ -104,7 +116,7 @@
             <span id="uploadBtnLabel">Mulai upload</span>
             <svg viewBox="0 0 24 24" fill="none"><path d="M8 12h8m0 0-3-3m3 3-3 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
-          <p class="panel-note" id="panelNote">Dengan mengunggah, kamu mendapatkan kode IP unik untuk mengakses file ini di halaman download.</p>
+          <p class="panel-note" id="panelNote">Dengan mengunggah, kamu mendapatkan kode IP unik untuk mengakses semua file ini di halaman download.</p>
         </div>
       </section>
     </section>

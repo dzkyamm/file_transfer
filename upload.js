@@ -8,18 +8,27 @@ const dropZone = document.getElementById('dropZone');
 const fileInput = document.getElementById('fileInput');
 const fileNameDisplay = document.getElementById('fileNameDisplay');
 const uploadBtn = document.getElementById('uploadBtn');
-const selectedFileRow = document.getElementById('selectedFileRow');
-const fName = document.getElementById('fName');
-const fSize = document.getElementById('fSize');
-const fIcon = document.getElementById('fIcon');
-const fRemove = document.getElementById('fRemove');
+const uploadBtnLabel = document.getElementById('uploadBtnLabel');
+const selectedFilesContainer = document.getElementById('selectedFilesContainer');
+const selectedFilesCount = document.getElementById('selectedFilesCount');
+const selectedFilesList = document.getElementById('selectedFilesList');
+const clearAllBtn = document.getElementById('clearAllBtn');
+
 const progressTrack = document.getElementById('progressTrack');
+const progressStatus = document.getElementById('progressStatus');
+const progressSpeed = document.getElementById('progressSpeed');
+const progressFill = document.getElementById('progressFill');
+const progressStatsText = document.getElementById('progressStatsText');
+const progressEtaText = document.getElementById('progressEtaText');
+
 const uploadControls = document.getElementById('uploadControls');
 const successState = document.getElementById('successState');
+const successSummary = document.getElementById('successSummary');
 const panelHeadDefault = document.getElementById('panelHeadDefault');
 const copyIpBtn = document.getElementById('copyIpBtn');
+const uploadedFilesPreview = document.getElementById('uploadedFilesPreview');
 
-let selectedFile = null;
+let selectedFiles = [];
 let dragCounter = 0;
 
 // Generate IP numerik acak dengan format IPv4 asli (contoh: 192.168.x.x atau acak penuh)
@@ -50,7 +59,7 @@ function iconForFile(name) {
   if (['mp4','mov','mkv','webm'].includes(ext)) {
     return svg('<rect x="2" y="5" width="15" height="14" rx="2"/><path stroke-linecap="round" stroke-linejoin="round" d="M17 9l5-3v12l-5-3"/>');
   }
-  if (['doc','docx','txt','md'].includes(ext)) {
+  if (['doc','docx','txt','md','xls','xlsx','ppt','pptx'].includes(ext)) {
     return svg('<path stroke-linecap="round" stroke-linejoin="round" d="M6 2h9l5 5v15H6z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 2v5h5M8 13h8M8 17h8M8 9h3"/>');
   }
   return svg('<path stroke-linecap="round" stroke-linejoin="round" d="M6 2h9l5 5v15H6z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 2v5h5"/>');
@@ -62,6 +71,14 @@ function formatBytes(bytes, decimals = 1) {
   const sizes = ['Bytes', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+}
+
+function formatSpeed(bytesPerSec) {
+  if (!+bytesPerSec || bytesPerSec <= 0) return '0 KB/s';
+  if (bytesPerSec >= 1024 * 1024) {
+    return `${(bytesPerSec / (1024 * 1024)).toFixed(1)} MB/s`;
+  }
+  return `${Math.round(bytesPerSec / 1024)} KB/s`;
 }
 
 let toastTimer = null;
@@ -87,7 +104,11 @@ dropZone.addEventListener('keydown', (e) => {
   }
 });
 
-fileInput.addEventListener('change', (e) => handleFileSelect(e.target.files[0]));
+fileInput.addEventListener('change', (e) => {
+  if (e.target.files && e.target.files.length > 0) {
+    handleFilesSelected(Array.from(e.target.files));
+  }
+});
 
 dropZone.addEventListener('dragenter', (e) => {
   e.preventDefault();
@@ -106,82 +127,246 @@ dropZone.addEventListener('drop', (e) => {
   e.preventDefault();
   dragCounter = 0;
   dropZone.classList.remove('dragover');
-  if (e.dataTransfer.files.length > 0) handleFileSelect(e.dataTransfer.files[0]);
+  if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+    handleFilesSelected(Array.from(e.dataTransfer.files));
+  }
 });
 
-function handleFileSelect(file) {
-  if (!file) return;
-  selectedFile = file;
-  dropZone.classList.add('has-file');
-  fileNameDisplay.textContent = 'File dipilih';
-  fIcon.innerHTML = iconForFile(file.name);
-  fName.textContent = file.name;
-  fName.title = file.name;
-  fSize.textContent = formatBytes(file.size);
-  selectedFileRow.style.display = 'flex';
-  uploadBtn.disabled = false;
+function handleFilesSelected(newFiles) {
+  if (!newFiles || newFiles.length === 0) return;
+
+  // Hindari duplikasi file dengan memeriksa nama, ukuran, dan waktu modifikasi
+  newFiles.forEach(nf => {
+    const exists = selectedFiles.some(f => f.name === nf.name && f.size === nf.size && f.lastModified === nf.lastModified);
+    if (!exists) {
+      selectedFiles.push(nf);
+    }
+  });
+
+  renderSelectedFiles();
+}
+
+function removeFile(index) {
+  selectedFiles.splice(index, 1);
+  if (selectedFiles.length === 0) {
+    clearSelection();
+  } else {
+    renderSelectedFiles();
+  }
 }
 
 function clearSelection() {
-  selectedFile = null;
+  selectedFiles = [];
   fileInput.value = '';
   dropZone.classList.remove('has-file');
   fileNameDisplay.textContent = 'Tarik file ke sini';
-  selectedFileRow.style.display = 'none';
+  selectedFilesContainer.style.display = 'none';
+  selectedFilesList.innerHTML = '';
   uploadBtn.disabled = true;
+  uploadBtnLabel.textContent = 'Mulai upload';
 }
 
-fRemove.addEventListener('click', (e) => {
+clearAllBtn.addEventListener('click', (e) => {
   e.stopPropagation();
   clearSelection();
 });
 
+function renderSelectedFiles() {
+  if (selectedFiles.length === 0) {
+    clearSelection();
+    return;
+  }
+
+  const totalBytes = selectedFiles.reduce((acc, f) => acc + f.size, 0);
+  dropZone.classList.add('has-file');
+  fileNameDisplay.textContent = `${selectedFiles.length} file dipilih`;
+  selectedFilesCount.textContent = `${selectedFiles.length} file dipilih (${formatBytes(totalBytes)})`;
+  selectedFilesContainer.style.display = 'flex';
+  uploadBtn.disabled = false;
+  uploadBtnLabel.textContent = `Mulai upload (${selectedFiles.length} file)`;
+
+  selectedFilesList.innerHTML = '';
+  selectedFiles.forEach((file, idx) => {
+    const item = document.createElement('div');
+    item.className = 'selected-file-item';
+    item.innerHTML = `
+      <div class="f-icon">${iconForFile(file.name)}</div>
+      <div class="f-info">
+        <div class="f-name" title="${file.name}">${file.name}</div>
+        <div class="f-size">${formatBytes(file.size)}</div>
+      </div>
+      <button type="button" class="f-remove" aria-label="Hapus ${file.name}">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M7 7l10 10M17 7 7 17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+    `;
+    item.querySelector('.f-remove').addEventListener('click', (e) => {
+      e.stopPropagation();
+      removeFile(idx);
+    });
+    selectedFilesList.appendChild(item);
+  });
+}
+
+// Upload file individual dengan tracking progress realtime via XMLHttpRequest (dengan fallback)
+function uploadSingleFile(file, filePath, onProgress) {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    const encodedPath = filePath.split('/').map(segment => encodeURIComponent(segment)).join('/');
+    const url = `${SUPABASE_URL}/storage/v1/object/files/${encodedPath}`;
+    
+    xhr.open('POST', url, true);
+    xhr.setRequestHeader('apikey', SUPABASE_ANON_KEY);
+    xhr.setRequestHeader('Authorization', `Bearer ${SUPABASE_ANON_KEY}`);
+    xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
+    xhr.setRequestHeader('x-upsert', 'true');
+
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable && onProgress) {
+        onProgress(e.loaded, e.total);
+      }
+    };
+
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve(xhr.response);
+      } else {
+        // Fallback ke Supabase JS Client jika endpoint XHR spesifik ditolak
+        supabaseClient.storage.from('files').upload(filePath, file, { upsert: true })
+          .then(({ data, error }) => {
+            if (error) reject(new Error(xhr.responseText || error.message));
+            else resolve(data);
+          })
+          .catch(reject);
+      }
+    };
+
+    xhr.onerror = () => {
+      // Fallback ke Supabase JS Client saat network / CORS issue
+      supabaseClient.storage.from('files').upload(filePath, file, { upsert: true })
+        .then(({ data, error }) => {
+          if (error) reject(new Error(error.message));
+          else resolve(data);
+        })
+        .catch(reject);
+    };
+
+    xhr.send(file);
+  });
+}
+
 // Proses Upload ke Supabase
 uploadBtn.addEventListener('click', async () => {
-  if (!selectedFile) return;
+  if (!selectedFiles || selectedFiles.length === 0) return;
 
+  const filesToUpload = [...selectedFiles];
+  const totalFiles = filesToUpload.length;
+  const totalBytes = filesToUpload.reduce((acc, f) => acc + f.size, 0);
+
+  // Kunci antarmuka
   uploadBtn.disabled = true;
-  uploadBtn.textContent = 'Mengunggah...';
+  uploadBtnLabel.textContent = 'Mengunggah...';
   dropZone.style.pointerEvents = 'none';
-  fRemove.disabled = true;
+  clearAllBtn.style.pointerEvents = 'none';
+  document.querySelectorAll('.f-remove').forEach(btn => btn.style.display = 'none');
+  
   progressTrack.classList.add('active');
+  progressFill.style.width = '0%';
+  progressSpeed.textContent = '⚡ 0 KB/s';
+  progressStatsText.textContent = `0% (0 / ${formatBytes(totalBytes)})`;
+  progressEtaText.textContent = 'Menghitung waktu...';
 
   const ipCode = generateIPv4();
-  const safeName = selectedFile.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-  // Simpan dalam folder path khusus berdasarkan IP
-  const filePath = `${ipCode}/${safeName}`;
+  let uploadedBytesBeforeCurrent = 0;
+  let lastTimestamp = performance.now();
+  let lastBytesLoadedTotal = 0;
+  let smoothedSpeed = 0;
 
   try {
-    const { error } = await supabaseClient.storage.from('files').upload(filePath, selectedFile);
-    if (error) throw error;
+    for (let i = 0; i < totalFiles; i++) {
+      const file = filesToUpload[i];
+      const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const filePath = `${ipCode}/${safeName}`;
 
-    progressTrack.classList.remove('active');
-    showToast(`Upload berhasil!`, 'success');
-    
-    // Tampilkan UI Sukses
-    uploadControls.style.display = 'none';
-    panelHeadDefault.style.display = 'none';
-    successState.style.display = 'block';
-    
-    document.getElementById('generatedIpDisplay').textContent = ipCode;
-    document.getElementById('goToDownloadBtn').href = `download.html?ip=${ipCode}`;
-    
-    // Fungsional Salin IP
-    copyIpBtn.addEventListener('click', async () => {
-      try {
-        await navigator.clipboard.writeText(ipCode);
-        showToast('IP berhasil disalin', 'success');
-      } catch (err) {
-        showToast('Gagal menyalin tautan', 'error');
+      progressStatus.textContent = `Mengunggah (${i + 1}/${totalFiles}): ${file.name}`;
+
+      await uploadSingleFile(file, filePath, (fileLoaded, fileTotal) => {
+        const totalLoadedSoFar = uploadedBytesBeforeCurrent + fileLoaded;
+        const percent = Math.min(99, Math.round((totalLoadedSoFar / totalBytes) * 100));
+        progressFill.style.width = `${percent}%`;
+        progressStatsText.textContent = `${percent}% (${formatBytes(totalLoadedSoFar)} / ${formatBytes(totalBytes)})`;
+
+        // Hitung kecepatan realtime
+        const now = performance.now();
+        const timeDelta = (now - lastTimestamp) / 1000; // dalam detik
+        if (timeDelta >= 0.25) {
+          const bytesDelta = totalLoadedSoFar - lastBytesLoadedTotal;
+          const instantSpeed = bytesDelta / timeDelta;
+          smoothedSpeed = smoothedSpeed === 0 ? instantSpeed : (smoothedSpeed * 0.65 + instantSpeed * 0.35);
+          lastTimestamp = now;
+          lastBytesLoadedTotal = totalLoadedSoFar;
+
+          progressSpeed.textContent = `⚡ ${formatSpeed(smoothedSpeed)}`;
+
+          if (smoothedSpeed > 0) {
+            const remainingBytes = Math.max(0, totalBytes - totalLoadedSoFar);
+            const etaSec = Math.round(remainingBytes / smoothedSpeed);
+            progressEtaText.textContent = etaSec < 60 ? `Sisa: ~${etaSec} dtk` : `Sisa: ~${Math.ceil(etaSec / 60)} mnt`;
+          }
+        }
+      });
+
+      uploadedBytesBeforeCurrent += file.size;
+    }
+
+    // 100% Selesai
+    progressFill.style.width = '100%';
+    progressStatsText.textContent = `100% (${formatBytes(totalBytes)} / ${formatBytes(totalBytes)})`;
+    progressSpeed.textContent = `⚡ Selesai`;
+    progressEtaText.textContent = '0 dtk';
+    progressStatus.textContent = 'Semua file berhasil diunggah!';
+
+    setTimeout(() => {
+      progressTrack.classList.remove('active');
+      showToast(`${totalFiles} file berhasil diunggah!`, 'success');
+
+      // Tampilkan UI Sukses
+      uploadControls.style.display = 'none';
+      panelHeadDefault.style.display = 'none';
+      successState.style.display = 'block';
+
+      document.getElementById('generatedIpDisplay').textContent = ipCode;
+      successSummary.textContent = `${totalFiles} file (${formatBytes(totalBytes)}) siap dibagikan melalui IP storage di bawah.`;
+      
+      // Tampilkan daftar preview file yang diupload
+      if (uploadedFilesPreview) {
+        uploadedFilesPreview.innerHTML = filesToUpload.map(f => `
+          <div style="display:flex; justify-content:space-between; align-items:center; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+            <span style="font-weight: 500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:70%;">${f.name}</span>
+            <span style="font-size: 11px; color: var(--accent);">${formatBytes(f.size)}</span>
+          </div>
+        `).join('');
       }
-    });
+
+      document.getElementById('goToDownloadBtn').href = `download.html?ip=${ipCode}`;
+
+      // Fungsional Salin IP
+      copyIpBtn.onclick = async () => {
+        try {
+          await navigator.clipboard.writeText(ipCode);
+          showToast('IP berhasil disalin', 'success');
+        } catch (err) {
+          showToast('Gagal menyalin IP', 'error');
+        }
+      };
+    }, 500);
 
   } catch (error) {
     progressTrack.classList.remove('active');
     showToast('Upload gagal: ' + error.message, 'error');
     uploadBtn.disabled = false;
-    uploadBtn.textContent = 'Mulai upload';
+    uploadBtnLabel.textContent = `Mulai upload (${selectedFiles.length} file)`;
     dropZone.style.pointerEvents = 'auto';
-    fRemove.disabled = false;
+    clearAllBtn.style.pointerEvents = 'auto';
+    document.querySelectorAll('.f-remove').forEach(btn => btn.style.display = 'grid');
   }
 });
